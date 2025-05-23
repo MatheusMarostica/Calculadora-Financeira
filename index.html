@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="title">Monthly Expense Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body data-theme="light">
+    <!-- Language and Theme Controls -->
+    <div class="controls-wrapper">
+        <div class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </div>
+        <div class="language-controls">
+            <button onclick="switchLanguage('en')" class="lang-btn" data-lang="en">EN</button>
+            <button onclick="switchLanguage('pt')" class="lang-btn" data-lang="pt">PT</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="app-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <h1 data-translate="title">Monthly Expense Calculator</h1>
+        </div>
+
+        <!-- Monthly Goal Setting -->
+        <div class="goal-setting">
+            <h2 data-translate="goal.title">Monthly Budget Goal</h2>
+            <div class="goal-input">
+                <input type="number" id="goalAmount" data-translate-placeholder="goal.placeholder" placeholder="Enter your monthly goal" min="0" step="0.01">
+                <button onclick="setMonthlyGoal()" data-translate="goal.set">Set Goal</button>
+            </div>
+            <div class="goal-progress">
+                <div class="progress-bar">
+                    <div class="progress" id="goalProgressBar"></div>
+                </div>
+                <div class="goal-stats">
+                    <span data-translate="goal.spent">Spent</span>
+                    <span id="spentAmount">$0</span>
+                    <span data-translate="goal.of">of</span>
+                    <span id="goalDisplay">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="expense-form">
+            <h2 data-translate="addExpense">Add New Expense</h2>
+            <form id="expenseForm">
+                <div class="form-group">
+                    <label for="description" data-translate="description">Description</label>
+                    <input type="text" id="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="currency" data-translate="currency.label">Currency</label>
+                    <select id="currency" class="currency-select">
+                        <option value="USD" data-translate="currency.usd">USD ($)</option>
+                        <option value="BRL" data-translate="currency.brl">BRL (R$)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount" data-translate="amount">Amount</label>
+                    <div class="amount-input-group">
+                        <span class="currency-symbol" id="currencySymbol">$</span>
+                        <input type="number" id="amount" min="0" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="category" data-translate="category">Category</label>
+                    <select id="category" required>
+                        <option value="food" data-translate="categories.food">Food & Groceries</option>
+                        <option value="dining" data-translate="categories.dining">Dining Out & Restaurants</option>
+                        <option value="transportation" data-translate="categories.transportation">Transportation</option>
+                        <option value="utilities" data-translate="categories.utilities">Utilities</option>
+                        <option value="rent" data-translate="categories.rent">Rent/Mortgage</option>
+                        <option value="entertainment" data-translate="categories.entertainment">Entertainment</option>
+                        <option value="healthcare" data-translate="categories.healthcare">Healthcare</option>
+                        <option value="insurance" data-translate="categories.insurance">Insurance</option>
+                        <option value="shopping" data-translate="categories.shopping">Shopping</option>
+                        <option value="education" data-translate="categories.education">Education</option>
+                        <option value="fitness" data-translate="categories.fitness">Fitness & Sports</option>
+                        <option value="travel" data-translate="categories.travel">Travel & Vacation</option>
+                        <option value="pets" data-translate="categories.pets">Pets</option>
+                        <option value="gifts" data-translate="categories.gifts">Gifts & Donations</option>
+                        <option value="savings" data-translate="categories.savings">Savings & Investments</option>
+                        <option value="subscriptions" data-translate="categories.subscriptions">Subscriptions & Services</option>
+                        <option value="maintenance" data-translate="categories.maintenance">Home/Car Maintenance</option>
+                        <option value="personal" data-translate="categories.personal">Personal Care</option>
+                        <option value="childcare" data-translate="categories.childcare">Childcare</option>
+                        <option value="other" data-translate="categories.other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" data-translate="addButton">Add Expense</button>
+            </form>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="charts-header">
+                <h2 data-translate="charts.title">Financial Overview</h2>
+            </div>
+            <div class="chart-wrapper">
+                <h3 data-translate="charts.distribution">Expense Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Tips Section -->
+        <div class="tips-section">
+            <div class="tips-header">
+                <h2>
+                    <i class="fas fa-lightbulb"></i>
+                    <span data-translate="tips.title">Financial Tips</span>
+                </h2>
+                <button class="refresh-tip" onclick="updateFinancialTip()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span data-translate="tips.newTip">New Tip</span>
+                </button>
+            </div>
+            <div class="tip-card">
+                <div class="tip-content" id="financialTip">
+                    <!-- Tips will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="expense-summary">
+            <h2 data-translate="expenseSummary">Expense Summary</h2>
+            <div class="total-expenses">
+                <h3>
+                    <span data-translate="total">Total</span>
+                    <span id="totalAmount">$0.00</span>
+                </h3>
+            </div>
+            <div class="category-summary" id="categorySummary">
+                <!-- Category summaries will be added here dynamically -->
+            </div>
+        </div>
+
+        <div class="expense-list">
+            <div class="expense-list-header">
+                <h2 data-translate="expenseList">Expense List</h2>
+                <div class="list-actions">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="list" onclick="toggleView('list')">
+                            <i class="fas fa-list"></i>
+                            <span data-translate="views.list">List View</span>
+                        </button>
+                        <button class="view-btn" data-view="table" onclick="toggleView('table')">
+                            <i class="fas fa-table"></i>
+                            <span data-translate="views.table">Table View</span>
+                        </button>
+                    </div>
+                    <button class="clear-btn" onclick="clearAllExpenses()" data-translate="buttons.clearAll">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+            </div>
+            <div id="expenseList" class="list-view active">
+                <!-- Expenses will be added here dynamically -->
+            </div>
+            <div id="expenseTable" class="table-view">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-translate="table.description">Description</th>
+                            <th data-translate="table.category">Category</th>
+                            <th data-translate="table.amount">Amount</th>
+                            <th data-translate="table.date">Date</th>
+                            <th data-translate="table.actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseTableBody">
+                        <!-- Table rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
